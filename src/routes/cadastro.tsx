@@ -1,0 +1,296 @@
+"use client";
+
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from "lucide-react";
+
+export const Route = createFileRoute("/cadastro")({
+  component: RegisterPage,
+});
+
+function RegisterPage() {
+  const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [accept, setAccept] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: firstName,
+          lastName,
+          phone,
+          email,
+          password,
+          acceptTerms: accept,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.success) {
+        setError(data.message ?? "Não foi possível concluir o cadastro.");
+        return;
+      }
+
+      // Sucesso: leva para a tela de login.
+      navigate({ to: "/login" });
+    } catch {
+      setError("Não foi possível conectar. Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12">
+      {/* Fundo com brilho, no mesmo estilo do hero */}
+      <div className="pointer-events-none absolute inset-0 bg-hero-glow" />
+      <div className="pointer-events-none absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-royal/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-navy/10 blur-3xl" />
+
+      <div className="relative w-full max-w-md">
+        {/* Voltar */}
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar para o início
+        </Link>
+
+        <div className="card-elevated p-8 md:p-10">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-navy to-royal text-sm font-bold text-primary-foreground">
+              3A
+            </span>
+            <span className="text-sm font-semibold tracking-tight">
+              Simulador{" "}
+              <span className="font-normal text-muted-foreground">Método 3A</span>
+            </span>
+          </div>
+
+          {/* Cabeçalho */}
+          <div className="mt-8">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              Crie sua conta
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Comece hoje a simular e fechar mais vendas com o Método 3A.
+            </p>
+          </div>
+
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            {/* Nome e Sobrenome */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
+                  Nome
+                </label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="João"
+                    className="w-full rounded-xl border border-border bg-surface-elevated py-3 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-royal/50 focus:ring-2 focus:ring-ring/40"
+                  />
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
+                  Sobrenome
+                </label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    id="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Silva"
+                    className="w-full rounded-xl border border-border bg-surface-elevated py-3 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-royal/50 focus:ring-2 focus:ring-ring/40"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Telefone */}
+            <div>
+              <label
+                htmlFor="phone"
+                className="mb-1.5 block text-sm font-medium text-foreground"
+              >
+                Telefone
+              </label>
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  id="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                  className="w-full rounded-xl border border-border bg-surface-elevated py-3 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-royal/50 focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+            </div>
+
+            {/* E-mail */}
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-sm font-medium text-foreground"
+              >
+                E-mail
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="voce@empresa.com"
+                  className="w-full rounded-xl border border-border bg-surface-elevated py-3 pl-11 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-royal/50 focus:ring-2 focus:ring-ring/40"
+                />
+              </div>
+            </div>
+
+            {/* Senha */}
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-sm font-medium text-foreground"
+              >
+                Senha
+              </label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-border bg-surface-elevated py-3 pl-11 pr-11 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-royal/50 focus:ring-2 focus:ring-ring/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Aceite dos termos */}
+            <label className="flex cursor-pointer items-start gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                required
+                checked={accept}
+                onChange={(e) => setAccept(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border text-royal accent-[var(--royal)]"
+              />
+              <span>
+                Concordo com os{" "}
+                <a href="#" className="font-medium text-royal hover:underline">
+                  Termos de Uso
+                </a>{" "}
+                e a{" "}
+                <a href="#" className="font-medium text-royal hover:underline">
+                  Política de Privacidade
+                </a>
+                .
+              </span>
+            </label>
+
+            {/* Mensagem de erro */}
+            {error && (
+              <div
+                role="alert"
+                className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              >
+                {error}
+              </div>
+            )}
+
+            {/* Botão de envio */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-navy px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_10px_30px_-12px_oklch(0.22_0.055_260/0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-14px_oklch(0.45_0.2_262/0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {submitting ? "Criando conta..." : "Criar conta"}
+              {!submitting && (
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              )}
+            </button>
+          </form>
+
+          {/* Rodapé do card */}
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Já tem uma conta?{" "}
+            <Link to="/login" className="font-medium text-royal hover:underline">
+              Entrar
+            </Link>
+          </p>
+        </div>
+
+        {/* Selo de confiança */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <ShieldCheck className="h-4 w-4 text-growth" />
+          Conexão segura · criptografia ponta a ponta
+        </div>
+      </div>
+    </div>
+  );
+}
