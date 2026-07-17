@@ -10,7 +10,7 @@ RUN apt-get update \
 
 COPY package.json package-lock.json ./
 RUN node -v && npm -v
-RUN npm ci --include=dev --no-audit --no-fund || (cat /root/.npm/_logs/*-debug-0.log || true; exit 1)
+RUN npm install --include=dev --no-audit --no-fund || (cat /root/.npm/_logs/*-debug-0.log || true; exit 1)
 
 COPY . .
 RUN npm run build
