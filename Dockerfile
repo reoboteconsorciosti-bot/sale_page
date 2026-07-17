@@ -2,7 +2,6 @@ FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
 
-ENV NODE_ENV=production
 ENV NITRO_PRESET=node-server
 
 RUN apt-get update \
@@ -10,7 +9,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN node -v && npm -v
+RUN npm ci --include=dev --no-audit --no-fund || (cat /root/.npm/_logs/*-debug-0.log || true; exit 1)
 
 COPY . .
 RUN npm run build
